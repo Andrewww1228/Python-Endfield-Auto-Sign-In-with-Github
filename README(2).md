@@ -44,4 +44,5 @@ This script is for educational purposes only. Use it at your own risk. The autho
 
 ## 👤 Credits
 - Script Logic: Based on `sjtt2`
+- https://github.com/sjtt2/endfield_auto_sign
 - Modified by: [Andrew/Andrewww1228]
