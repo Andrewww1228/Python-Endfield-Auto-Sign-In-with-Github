@@ -44,4 +44,5 @@
 
 ## 👤 致谢
 - 核心逻辑：基于 `sjtt2` 的开源方案
+- https://github.com/sjtt2/endfield_auto_sign
 - 修改/维护：[Andrew/Andrewww1228]
