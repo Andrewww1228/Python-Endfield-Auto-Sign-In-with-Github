@@ -1,0 +1,91 @@
+name: Endfield Auto Sign
+
+on:
+  schedule:
+    - cron: '30 0 * * *'  # 8:30am Malaysia time (UTC+8)
+  workflow_dispatch:
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run sign-in script
+        env:
+          SKYLAND_TOKEN: ${{ secrets.SKYLAND_TOKEN }}
+          SKPORT_TOKEN: ${{ secrets.SKPORT_TOKEN }}
+        run: python Endfield_auto_signin.py
+
+      - name: Send Discord Embed
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          python3 << 'EOF'
+          import json, urllib.request, os, datetime
+
+          # Check if result file exists to avoid crashes
+          if not os.path.exists('result.json'):
+              print("No result.json found, skipping webhook.")
+              exit(0)
+
+          with open('result.json') as f:
+              results = json.load(f)
+
+          now = datetime.datetime.utcnow().strftime("%m/%d/%Y %I:%M %p") + " UTC"
+
+          embeds = []
+          for r in results:
+              if r['status'] == 'success':
+                  color = 5814783   # blue
+                  icon  = "✅"
+              elif r['status'] == 'already':
+                  color = 16776960  # yellow
+                  icon  = "⚠️"
+              else:
+                  color = 15158332  # red
+                  icon  = "❌"
+
+              embeds.append({
+                  "title": f"{icon} Endfield Daily Check-in",
+                  "color": color,
+                  "fields": [
+                      {"name": "UID",    "value": str(r['uid']),    "inline": True},
+                      {"name": "Name",   "value": r['name'],        "inline": True},
+                      {"name": "Server", "value": r['server'],      "inline": True},
+                      {"name": "Reward", "value": r['reward'],      "inline": False},
+                  ],
+                  "footer": {"text": f"Endfield Auto Check-in • {now}"}
+              })
+
+          payload = json.dumps({"embeds": embeds}).encode()
+          
+          # ADDED USER-AGENT HERE TO FIX 403 FORBIDDEN
+          headers = {
+              "Content-Type": "application/json",
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          }
+
+          req = urllib.request.Request(
+              os.environ['DISCORD_WEBHOOK'],
+              data=payload,
+              headers=headers,
+              method="POST"
+          )
+          
+          try:
+              with urllib.request.urlopen(req) as response:
+                  print("Discord notification sent successfully!")
+          except Exception as e:
+              print(f"Failed to send Discord notification: {e}")
+          EOF
