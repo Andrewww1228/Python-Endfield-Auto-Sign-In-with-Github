@@ -2,7 +2,7 @@ name: Endfield Auto Sign
 
 on:
   schedule:
-    - cron: '30 0 * * *'  # 8:30am Malaysia time (UTC+8)
+    - cron: '7 4 * * *'  # 12:07pm Malaysia time (UTC+8)
   workflow_dispatch:
 
 jobs:
