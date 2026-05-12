@@ -8,6 +8,7 @@
 ## English Version
 
 An automated daily check-in script for **Arknights: Endfield** (Skland/Skport) using GitHub Actions. It handles daily sign-ins for both CN and Global servers and sends a summary notification to a Discord Webhook.
+⚠️ Note: This is a mirror of my private development repository. GitHub Actions are disabled here for security/deployment reasons.
 
 ### ✨ Features
 - **Automation:** Runs daily at 00:30 UTC (08:30 AM Malaysia Time).
